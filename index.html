@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles/styles.css">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <title>Dodge-game</title>
+</head>
+<body>
+    <div class="playground">
+        <div class="character"></div>        
+        <p id="collision">Collision</p>
+    </div>
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script>
+        $( document ).ready(function() {
+            console.log("document loaded")                    
+        
+            // player starting position        
+            var px = 235;
+            var py = 220;
+            var inc = 15;
+
+            //controls
+            document.onkeydown = function(e) {
+                e = e || window.event;
+                        
+                if(e.keyCode == "37") {
+                    if (px == 10) ;
+                    else {            
+                    px += -inc;
+                    $(".character").css("left", px + 'px');            
+                    }
+                }
+                else if(e.keyCode == "38") {
+                    if (py == 10) ;
+                    else {
+                    py += -inc;
+                    $(".character").css("top", py + 'px');          
+                    }
+                }
+                else if(e.keyCode == "39") {
+                    if (px == 460) ;
+                    else {
+                    px += inc;
+                    $(".character").css("left", px + 'px');            
+                    }
+                }
+                else if(e.keyCode == "40") {
+                    if (py == 265) ;
+                    else {
+                    py += inc;
+                    $(".character").css("top", py + 'px');            
+                    }
+                }
+            };
+
+            // enemy code 
+            
+                //spawn
+            var count = 0;
+            setInterval(spawn, 500);
+
+            function spawn() {                             
+                ex = Math.floor(Math.random() * 500);                
+                $(".playground").append(`<div class="enemy" id="enemy${count}"></div>`);  
+                $(`#enemy${count}`).css('left', ex + 'px');          
+                count++                            
+                
+            }
+                //despawn
+            setTimeout(function() {setInterval(despawn, 500)}, 5500)
+            first = 0;           
+            function despawn() {                
+                $(`#enemy${first}`).remove();
+                first++;
+            }
+
+                // falling
+            setInterval(falling, 10)
+              
+            function falling() {
+                for (let i = first; i < count; i++) {
+                    let height = $(`#enemy${i}`).position().top;
+                    $(`#enemy${i}`).css('top', height + 1 + 'px');                               
+                }            
+            }       
+            
+                
+                //collision
+            // setInterval(collision, 100);
+
+            function collision() {                
+                if (ey - py > -30 && ey - py < 30 && ex - px > -30 && ex - px < 30) {
+                    $('#collision').css('display','block');
+                    $('.enemy').css('background', 'red');
+            }};
+
+            
+
+        });
+    </script>
+</body>
+</html>
