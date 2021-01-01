@@ -5,13 +5,12 @@ $(document).ready(function () {
   var px = 235;
   var py = 220;
   var jump = 125;
-  var move = 25;
+  var move = 40;
   var direction = "left";
 
   //controls
   document.onkeydown = function (e) {
     e = e || window.event;
-    console.log(e.key);
 
     switch (e.key) {
       //basic movement
@@ -32,10 +31,11 @@ $(document).ready(function () {
         break;
       case "ArrowDown":
       case "s":
+        e.preventDefault();
         direction = "down";
         py += move;
         break;
-      // fine movement
+      // presize movement
       case "q":
         direction = "left";
         px += -move / 4;
@@ -46,6 +46,7 @@ $(document).ready(function () {
         break;
       //jumping
       case " ":
+        e.preventDefault();
         switch (direction) {
           case "left":
             px += -jump;
@@ -60,9 +61,8 @@ $(document).ready(function () {
             py += jump;
             break;
         }
-    }
+    };
     //borders
-
     if (px < 10) {
       px = 5;
     }
@@ -80,44 +80,102 @@ $(document).ready(function () {
   };
 
   // enemy code
+  var speed = 1;
 
   //spawn
   var count = 0;
-  setInterval(spawn, 500);
+  var enemiesPresent = [];
+  var spawnDelay = 400;
+  var spawnInterval = null;
 
   function spawn() {
     ex = Math.floor(Math.random() * 500);
     $(".playground").append(`<div class="enemy" id="enemy${count}"></div>`);
     $(`#enemy${count}`).css("left", ex + "px");
+    enemiesPresent.push(count);
     count++;
-  }
+  };
+
+  spawnInterval = setInterval(spawn, spawnDelay);
+
   //despawn
-  setTimeout(function () {
-    setInterval(despawn, 500);
-  }, 5500);
   first = 0;
+  var despawnInterval = null;
+
   function despawn() {
     $(`#enemy${first}`).remove();
+    const index = enemiesPresent.indexOf(first);
+    if (index > -1) {
+      enemiesPresent.splice(index, 1);
+    }
     first++;
-  }
+  };
 
-  // falling
-  setInterval(falling, 10);
+  function assignInterval() {
+    despawnInterval = setInterval(despawn, spawnDelay);
+  };
+  
+  setTimeout(assignInterval, 5500);
+
+  //Increasing difficulty
+  function harder() {            
+      spawnDelay = spawnDelay - 40;
+      console.log(spawnDelay);
+
+      clearInterval(spawnInterval);
+      spawnInterval = setInterval(spawn, spawnDelay);
+
+      clearInterval(despawnInterval);
+      setTimeout(assignInterval, 1000);
+    
+    if (spawnDelay < 150) {
+      clearInterval(hardening);
+      // break;
+    }
+    
+  };
+  var hardening = null
+  hardening = setInterval(harder, 6000);
+
+  // enemy falling movement
+  var fallingTimer = null;
+  fallingTimer = setInterval(falling, 10);
 
   function falling() {
-    for (let i = first; i < count; i++) {
-      let height = $(`#enemy${i}`).position().top;
-      $(`#enemy${i}`).css("top", height + 1 + "px");
+    for (let i = 0; i < enemiesPresent.length; i++) {
+      let height = $(`#enemy${enemiesPresent[i]}`).position().top;
+      $(`#enemy${enemiesPresent[i]}`).css("top", height + speed + "px");
     }
   }
 
   //collision
-  // setInterval(collision, 100);
+  let lives = 6;
 
   function collision() {
-    if (ey - py > -30 && ey - py < 30 && ex - px > -30 && ex - px < 30) {
-      $("#collision").css("display", "block");
-      $(".enemy").css("background", "red");
+    for (let i = 0; i < enemiesPresent.length; i++) {
+      let currentEnemy = $(`#enemy${enemiesPresent[i]}`);
+      let currentEx = currentEnemy.css("left").slice(0, -2);
+      let currentEy = currentEnemy.css("top").slice(0, -2);
+      if (
+        currentEy - py > -30 &&
+        currentEy - py < 30 &&
+        currentEx - px > -30 &&
+        currentEx - px < 30
+      ) {
+        // $("#collision").css("display", "block");
+        currentEnemy.css("background", "red");
+        currentEnemy.addClass(
+          "animate__animated animate__fadeOutTopLeft"
+        );
+        enemiesPresent.splice(i, 1);
+        let life = $(`#life${lives}`);
+        life.addClass("animate__animated animate__fadeOutLeft");
+        lives -= 1;
+      }
     }
   }
+
+  setInterval(collision, 100);
+
+  
 });

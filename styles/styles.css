@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  height: 50vh;
+  height: 100%;
 }
 
 .playground {
@@ -20,7 +20,7 @@ body {
   left: 235px;
   height: 30px;
   width: 30px;
-  background-color: #252424;
+  background-color: #5462FF;
 }
 
 .enemy {
@@ -40,5 +40,35 @@ body {
   font-size: 20vh;
   color: black;
   display: none;
+}
+
+.lives {
+  position: absolute;
+  top: 10px;
+  right: 180px;
+  height: 30px;
+  width: 50px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  z-index: 5;
+}
+
+.lives img {
+  height: 30px;
+  width: 50px;
+  padding: 3px;
+}
+
+.controls {
+  position: relative;
+  margin: 50px 0;
+  width: 100%;
+}
+
+.controls p {
+  text-align: center;
+  width: 100%;
+  font-size: 25px;
 }
 /*# sourceMappingURL=styles.css.map */
