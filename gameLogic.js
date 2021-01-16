@@ -2,180 +2,280 @@ $(document).ready(function () {
   console.log("document loaded");
 
   // player starting position
-  var px = 235;
-  var py = 220;
-  var jump = 125;
-  var move = 40;
-  var direction = "left";
+  let px = 235;
+  let py = 220;
+  let jump = 150;
+  let move = 3;
+  let direction = "left";
 
-  //controls
-  document.onkeydown = function (e) {
-    e = e || window.event;
+  //new controls
+  let movement = null;
+  let map = {};
+  let blinkCount = 0;
+  let blinkRelease = true;
 
-    switch (e.key) {
-      //basic movement
-      case "ArrowLeft":
-      case "a":
-        direction = "left";
-        px += -move;
-        break;
-      case "ArrowUp":
-      case "w":
-        direction = "up";
-        py += -move;
-        break;
-      case "ArrowRight":
-      case "d":
-        direction = "right";
-        px += move;
-        break;
-      case "ArrowDown":
-      case "s":
-        e.preventDefault();
-        direction = "down";
-        py += move;
-        break;
-      // presize movement
-      case "q":
-        direction = "left";
-        px += -move / 4;
-        break;
-      case "e":
-        direction = "right";
-        px += move / 4;
-        break;
-      //jumping
-      case " ":
-        e.preventDefault();
-        switch (direction) {
-          case "left":
-            px += -jump;
-            break;
-          case "up":
-            py += -jump;
-            break;
-          case "right":
-            px += jump;
-            break;
-          case "down":
-            py += jump;
-            break;
-        }
-    };
-    //borders
-    if (px < 10) {
+  const controls = () => {
+    if (map[" "] && blinkRelease) {
+      blinkRelease = false;
+      $(".playground").append(
+        `<div class="blink" id=blink${blinkCount}></div>`
+      );
+      let blink = $(`#blink${blinkCount}`);
+      blink.css({ top: `${py + "px"}`, left: `${px + "px"}` });
+      setTimeout(() => {
+        blink.remove();
+      }, 950);
+      blinkCount++;
+      switch (direction) {
+        case "left":
+          px += -jump;
+          break;
+        case "up":
+          py += -jump;
+          break;
+        case "right":
+          px += jump;
+          break;
+        case "down":
+          py += jump;
+          break;
+        case "upleft":
+          px += -jump;
+          py += -jump;
+          break;
+        case "upright":
+          py += -jump;
+          px += jump;
+          break;
+        case "downright":
+          px += jump;
+          py += jump;
+          break;
+        case "downleft":
+          py += jump;
+          px += -jump;
+          break;
+      }
+    } else if (map.ArrowLeft && map.ArrowUp) {
+      px -= move;
+      py -= move;
+      direction = "upleft";
+    } else if (map.ArrowLeft && map.ArrowDown) {
+      px -= move;
+      py += move;
+      direction = "downleft";
+    } else if (map.ArrowRight && map.ArrowUp) {
+      px += move;
+      py -= move;
+      direction = "upright";
+    } else if (map.ArrowRight && map.ArrowDown) {
+      px += move;
+      py += move;
+      direction = "downright";
+    } else if (map.ArrowLeft || map.a) {
+      px += -move;
+      direction = "left";
+    } else if (map.ArrowRight || map.d) {
+      px += move;
+      direction = "right";
+    } else if (map.ArrowUp || map.w) {
+      py -= move;
+      direction = "up";
+    } else if (map.ArrowDown || map.s) {
+      py += move;
+      direction = "down";
+    }
+
+    if (px < 5) {
       px = 5;
     }
-    if (py < 10) {
+    if (py < 5) {
       py = 5;
     }
-    if (px > 460) {
+    if (px > 465) {
       px = 465;
     }
     if (py > 265) {
       py = 265;
     }
-    $(".character").css("left", px + "px");
-    $(".character").css("top", py + "px");
+
+    $("#character").css("left", px + "px");
+    $("#character").css("top", py + "px");
   };
 
-  // enemy code
-  var speed = 1;
-
-  //spawn
-  var count = 0;
-  var enemiesPresent = [];
-  var spawnDelay = 400;
-  var spawnInterval = null;
-
-  function spawn() {
-    ex = Math.floor(Math.random() * 500);
-    $(".playground").append(`<div class="enemy" id="enemy${count}"></div>`);
-    $(`#enemy${count}`).css("left", ex + "px");
-    enemiesPresent.push(count);
-    count++;
+  onkeydown = function (e) {
+    map[e.key] = e.type == "keydown";
+    console.log(map);
   };
 
-  spawnInterval = setInterval(spawn, spawnDelay);
-
-  //despawn
-  first = 0;
-  var despawnInterval = null;
-
-  function despawn() {
-    $(`#enemy${first}`).remove();
-    const index = enemiesPresent.indexOf(first);
-    if (index > -1) {
-      enemiesPresent.splice(index, 1);
+  onkeyup = function (e) {
+    map[e.key] = e.type == "keydown";
+    console.log(map);
+    if (!map[" "]) {
+      blinkRelease = true;
     }
-    first++;
   };
 
-  function assignInterval() {
-    despawnInterval = setInterval(despawn, spawnDelay);
-  };
-  
-  setTimeout(assignInterval, 5500);
+  movement = setInterval(controls, 10);
 
-  //Increasing difficulty
-  function harder() {            
-      spawnDelay = spawnDelay - 40;
-      console.log(spawnDelay);
+  // Game running code
+  let gameStopped = true;
+  let gameCount = 1;
+  let enemiesPresent = [];
 
-      clearInterval(spawnInterval);
+  function GameStart() {
+    if (gameStopped == true) {
+      $(".colorful")[0].innerHTML = "Let's go!";
+      if (gameCount == 2) {
+        movement = setInterval(controls, 10);
+        for (let i = 1; i < 7; i++) {
+          let life = $(`#life${i}`);
+          life.removeClass("animate__animated animate__fadeOutLeft");
+        };
+        enemiesPresent.map(num => {
+          $(`#enemy${num}`).remove();
+        })        
+        enemiesPresent = [];
+      }
+      gameStopped = false;
+
+      //spawn
+      let count = 0;      
+      let spawnDelay = 400;
+      let spawnInterval = null;
+      let speed = 1;
+
+      function spawn() {
+        if (speed !== 0) {
+          ex = Math.floor(Math.random() * 500);
+          if (count % 5 == 1) {
+            $(".playground").append(
+              `<div class="ally" id="enemy${count}"></div>`
+            );
+            $(`#enemy${count}`).css("left", ex + "px");
+          } else {
+            $(".playground").append(
+              `<div class="enemy" id="enemy${count}"></div>`
+            );
+            $(`#enemy${count}`).css("left", ex + "px");
+          }
+          enemiesPresent.push(count);
+          count++;
+        }
+      }
+
       spawnInterval = setInterval(spawn, spawnDelay);
 
-      clearInterval(despawnInterval);
-      setTimeout(assignInterval, 1000);
-    
-    if (spawnDelay < 150) {
-      clearInterval(hardening);
-      // break;
-    }
-    
-  };
-  var hardening = null
-  hardening = setInterval(harder, 6000);
+      //despawn
+      first = 0;
+      let despawnInterval = null;
 
-  // enemy falling movement
-  var fallingTimer = null;
-  fallingTimer = setInterval(falling, 10);
-
-  function falling() {
-    for (let i = 0; i < enemiesPresent.length; i++) {
-      let height = $(`#enemy${enemiesPresent[i]}`).position().top;
-      $(`#enemy${enemiesPresent[i]}`).css("top", height + speed + "px");
-    }
-  }
-
-  //collision
-  let lives = 6;
-
-  function collision() {
-    for (let i = 0; i < enemiesPresent.length; i++) {
-      let currentEnemy = $(`#enemy${enemiesPresent[i]}`);
-      let currentEx = currentEnemy.css("left").slice(0, -2);
-      let currentEy = currentEnemy.css("top").slice(0, -2);
-      if (
-        currentEy - py > -30 &&
-        currentEy - py < 30 &&
-        currentEx - px > -30 &&
-        currentEx - px < 30
-      ) {
-        // $("#collision").css("display", "block");
-        currentEnemy.css("background", "red");
-        currentEnemy.addClass(
-          "animate__animated animate__fadeOutTopLeft"
-        );
-        enemiesPresent.splice(i, 1);
-        let life = $(`#life${lives}`);
-        life.addClass("animate__animated animate__fadeOutLeft");
-        lives -= 1;
+      function despawn() {
+        if (enemiesPresent !== []) {
+          $(`#enemy${first}`).remove();
+          const index = enemiesPresent.indexOf(first);
+          if (index > -1) {
+            enemiesPresent.splice(index, 1);
+          }
+          first++;
+        }
       }
+
+      function assignInterval() {
+        despawnInterval = setInterval(despawn, spawnDelay);
+      }
+
+      setTimeout(assignInterval, 5500);
+
+      //Increasing difficulty
+      function harder() {
+        spawnDelay = spawnDelay - 40;
+
+        clearInterval(spawnInterval);
+        spawnInterval = setInterval(spawn, spawnDelay);
+
+        clearInterval(despawnInterval);
+        setTimeout(assignInterval, 1000);
+
+        if (spawnDelay < 150) {
+          clearInterval(hardening);
+        }
+      }
+
+      let hardening = null;
+      hardening = setInterval(harder, 6000);
+
+      // enemy falling movement
+      let fallingTimer = null;
+      fallingTimer = setInterval(falling, 10);
+
+      function falling() {
+        for (let i = 0; i < enemiesPresent.length; i++) {
+          let height = $(`#enemy${enemiesPresent[i]}`).position().top;
+          $(`#enemy${enemiesPresent[i]}`).css("top", height + speed + "px");
+        }
+      }
+
+      //collision
+      let lives = 6;
+      let score = 0;
+
+      function newGame() {
+        gameStopped = true;
+        $(".colorful")[0].innerHTML = "Try again?";
+        gameCount = 2;
+        px = 235;
+        py = 220;
+      }
+
+      function collision() {
+        for (let i = 0; i < enemiesPresent.length; i++) {
+          let currentEnemy = $(`#enemy${enemiesPresent[i]}`);
+          let currentEx = currentEnemy.css("left").slice(0, -2);
+          let currentEy = currentEnemy.css("top").slice(0, -2);
+          if (
+            currentEy - py > -30 &&
+            currentEy - py < 30 &&
+            currentEx - px > -30 &&
+            currentEx - px < 30
+          ) {
+            // $("#collision").css("display", "block");
+            if (currentEnemy.hasClass("enemy")) {
+              currentEnemy.css("background", "red");
+              let life = $(`#life${lives}`);
+              life.addClass("animate__animated animate__fadeOutLeft");
+              lives -= 1;
+              console.log(lives);
+              // on death game stops
+              if (lives == 0) {
+                speed = 0;
+                clearInterval(movement);
+                setTimeout(newGame, 3000);
+                clearInterval(spawnInterval);
+                clearInterval(hardening);
+                clearInterval(despawnInterval);
+                clearInterval(collisionID);
+              } else {
+                currentEnemy.addClass(
+                  "animate__animated animate__fadeOutTopLeft"
+                );
+                enemiesPresent.splice(i, 1);
+              }
+            } else {
+              currentEnemy.addClass(
+                "animate__animated animate__fadeOutTopRight"
+              );
+              score += 500;
+              $(".score")[0].innerHTML = `Score: ${score}`;              
+              enemiesPresent.splice(i, 1);      
+            }
+                  
+          }
+        }
+      }
+      collisionID = setInterval(collision, 70);
     }
   }
 
-  setInterval(collision, 100);
-
-  
+  $(".colorful").on("click", GameStart);
 });

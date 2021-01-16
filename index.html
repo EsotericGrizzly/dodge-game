@@ -1,36 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./styles/styles.css">
-    <link rel="shortcut icon" href="img/favicon.ico">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles/styles.css" />
+    <link rel="shortcut icon" href="img/favicon.ico" />
+    <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
     <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-  />
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
     <title>Dodge-game</title>
-</head>
-<body>
-    <div class="playground">
-        <div class="character"></div>        
-        <p id="collision">Collision</p>
-        <div class="lives">
-            <img src="./img/heart.png" alt="" id="life6">
-            <img src="./img/heart.png" alt="" id="life5">
-            <img src="./img/heart.png" alt="" id="life4">
-            <img src="./img/heart.png" alt="" id="life3">
-            <img src="./img/heart.png" alt="" id="life2">
-            <img src="./img/heart.png" alt="" id="life1">
-        </div>        
+  </head>
+  <body>
+    <div class="flex-container">
+      <div class="flex-item1">
+        <div class="centered">
+          <p class="blue">You are blue.</p>
+          <p class="black">Avoid black</p>
+          <p class="green">Collect green to get +500 points</p>
+        </div>
+      </div>
+
+      <div class="flex-item2">
+        <div class="centered-pg">
+          <p class="score">Score: 0</p>
+          <div class="playground">
+            <div class="character" id="character"></div>
+            <p id="collision">Collision</p>
+            <div class="lives">
+              <img src="./img/heart.png" alt="life" id="life6" />
+              <img src="./img/heart.png" alt="life" id="life5" />
+              <img src="./img/heart.png" alt="life" id="life4" />
+              <img src="./img/heart.png" alt="life" id="life3" />
+              <img src="./img/heart.png" alt="life" id="life2" />
+              <img src="./img/heart.png" alt="life" id="life1" />
+            </div>
+          </div>
+          <div class="center">
+            <button class="colorful">Game Start</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-item3">
+        <div class="controls centered">
+          <p><b>Arrow Keys</b> to move.</br>
+          Press <b>SPACE</b> to jump!</p>
+          <p>The game gets harder every 6 seconds</p>
+        </div>
+      </div>
     </div>
-    <div class="controls">
-        <p><b>WSAD</b> or <b>Arrow Keys</b> to move</p>            
-        <p>Use <b>Q</b> and <b>E</b> for presize movement</p>
-        <p>Press <b>SPACE</b> to jump in last known direction!</p>
-        <p>The game get harder over time.</p>
-    </div>
-    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>   
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
     <script src="gameLogic.js"></script>
-</body>
+  </body>
 </html>
