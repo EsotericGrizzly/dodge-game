@@ -136,6 +136,7 @@ $(document).ready(function () {
           $(`#enemy${num}`).remove();
         })        
         enemiesPresent = [];
+        $("#collision").css("display", "none");
       }
       gameStopped = false;
 
@@ -238,16 +239,28 @@ $(document).ready(function () {
             currentEy - py < 30 &&
             currentEx - px > -30 &&
             currentEx - px < 30
-          ) {
-            // $("#collision").css("display", "block");
+          ) {            
             if (currentEnemy.hasClass("enemy")) {
               currentEnemy.css("background", "red");
               let life = $(`#life${lives}`);
               life.addClass("animate__animated animate__fadeOutLeft");
-              lives -= 1;
-              console.log(lives);
+              lives -= 1;                            
               // on death game stops
               if (lives == 0) {
+                console.log(score);
+                if (score == 0) {
+                  $("#death-text").html(`Still getting the feel for it, huh? </br> Score: 0`);
+                } else if (score > 0 && score < 4000) {                  
+                  $("#death-text").html(`You are hired! ...as a game tester. </br> Score: ${score}`);
+                } else if (score >= 4000 && score <= 8000) {   
+                  $("#death-text").html(`Don’t curse the darkness, light a candle. </br> Score: ${score}`);
+                } else if (score >= 8000 && score <= 10000) {   
+                  $("#death-text").html(`Every experience is a lesson. Every loss is a gain. </br> Score: ${score}`);
+                } else if (score >= 10000) {   
+                  $("#death-text").html(`You just became someone's reason to smile. </br> Score: ${score}`);
+                }                        
+                console.log(score);
+                $("#collision").css("display", "flex");
                 speed = 0;
                 clearInterval(movement);
                 setTimeout(newGame, 3000);
@@ -255,6 +268,7 @@ $(document).ready(function () {
                 clearInterval(hardening);
                 clearInterval(despawnInterval);
                 clearInterval(collisionID);
+                
               } else {
                 currentEnemy.addClass(
                   "animate__animated animate__fadeOutTopLeft"
