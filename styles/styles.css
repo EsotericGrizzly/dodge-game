@@ -126,7 +126,7 @@ body {
 
 .lives img {
   height: 30px;
-  width: 50px;
+  width: 32px;
   padding: 3px;
 }
 
@@ -235,6 +235,12 @@ button {
   letter-spacing: 3px;
   text-transform: uppercase;
   font-family: sans-serif;
+}
+
+button:focus {
+  outline: none;
+  -webkit-filter: invert(1);
+          filter: invert(1);
 }
 
 .colorful {

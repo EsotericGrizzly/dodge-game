@@ -13,7 +13,7 @@ body
 
 .flex-item1
     position: relative
-    flex-grow: 1    
+    flex-grow: 1            
     p
         text-align: center
         font-size: 30px
@@ -95,7 +95,7 @@ body
     z-index: 5
     img
         height: 30px
-        width: 50px
+        width: 32px
         padding: 3px
 
 .score
@@ -171,7 +171,10 @@ button
     font-weight: bold
     letter-spacing: 3px
     text-transform: uppercase
-    font-family: sans-serif
+    font-family: sans-serif    
+    &:focus
+        outline: none
+        filter: invert(1)
 
 .colorful
     position: relative
